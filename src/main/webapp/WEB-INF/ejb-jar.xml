@@ -1,0 +1,13 @@
+<ejb-jar xmlns="http://java.sun.com/xml/ns/javaee" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/ejb-jar_3_1.xsd" 
+  version="3.1">
+  
+ <enterprise-beans>
+    <session>
+        <ejb-name>UserBean</ejb-name>
+        <business-remote>com.hpx.javaee.service.UserRemote</business-remote>
+        <local-bean/>
+    </session>
+ </enterprise-beans> 
+ </ejb-jar>
