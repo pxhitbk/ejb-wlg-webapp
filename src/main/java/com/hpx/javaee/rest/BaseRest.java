@@ -1,9 +1,14 @@
 package com.hpx.javaee.rest;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import javax.ws.rs.core.Response;
 
 import com.hpx.javaee.util.ApplicationErrorCode;
@@ -17,11 +22,13 @@ public class BaseRest{
 		ERROR_CONVERSION.put(ApplicationErrorCode.UNHANDED_ERROR, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		ERROR_CONVERSION.put(ApplicationErrorCode.INVALID_NAME_TYPE, HttpServletResponse.SC_BAD_GATEWAY);
 		ERROR_CONVERSION.put(ApplicationErrorCode.USER_EXISTED, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		ERROR_CONVERSION.put(ApplicationErrorCode.INVALID_INPUT, HttpServletResponse.SC_BAD_REQUEST);
 	}
 	
-	protected <T> Response dispatch(int successStatus, IProcessResult<T> proccessor) {
+	protected <T, F> Response dispatch(int successStatus, F form, IProcessResult<T> proccessor) {
 		T result = null;
 		try {
+			validate(form);
 			result = proccessor.process();
 		} catch (ApplicationException appException) {
 			return error(appException);
@@ -48,6 +55,21 @@ public class BaseRest{
 			return unhandlerError(otherException);
 		}
 		return Response.status(successStatus).build();
+	}
+	
+	private <F> void validate(F form) {
+		ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+		Set<ConstraintViolation<F>> constraintViolations = validatorFactory.getValidator().validate(form);
+		StringBuilder message = new StringBuilder();
+		Iterator<ConstraintViolation<F>> iter = constraintViolations.iterator();
+		for (int i = 0; i < constraintViolations.size(); i++) {
+			ConstraintViolation<F> violation = iter.next();
+			message.append(violation.getMessage());
+			if (iter.hasNext()) message.append("/");
+		}
+		if (message.length() > 0) {
+			throw new ApplicationException(ApplicationErrorCode.INVALID_INPUT, message.toString());
+		}
 	}
 	
 	protected Response error(ApplicationException e) {

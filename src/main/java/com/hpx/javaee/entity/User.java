@@ -2,15 +2,14 @@ package com.hpx.javaee.entity;
 
 import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.FormParam;
-import javax.xml.bind.annotation.XmlRootElement;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
-	@FormParam("username") 
 	@NotNull
 	private String username;
-	@FormParam("password")
-	@NotNull
+	@NotNull(message="password cannot be null")
 	private String password;
 	public User() {}
 	public User(String username, String password) {
