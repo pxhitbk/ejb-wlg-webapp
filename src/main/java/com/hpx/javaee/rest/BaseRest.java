@@ -34,6 +34,7 @@ public class BaseRest{
 			return error(appException);
 		}
 		catch (Exception otherException) {
+			otherException.printStackTrace();
 			if (otherException.getCause() instanceof ApplicationException) {
 				return error((ApplicationException) otherException.getCause());
 			}
